@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lab Prodifa — Animated Visuals (Kelompok 3)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0B2545;
+    --teal: #0A7C8C;
+    --mint: #00C4B4;
+    --gold: #F4C542;
+    --green: #16A34A;
+    --amber: #D97706;
+    --red: #DC2626;
+    --purple: #7C3AED;
+    --bg: #0F172A;
+    --bg2: #1E293B;
+    --card: #1E293B;
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+    --border: rgba(255,255,255,0.08);
+  }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  header h1 {
+    font-size: 2.4em;
+    font-weight: 700;
+    background: linear-gradient(120deg, var(--mint), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 1em;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(0,196,180,0.15);
+    color: var(--mint);
+    border-radius: 100px;
+    font-size: 0.75em;
+    margin-bottom: 12px;
+    letter-spacing: 1.5px;
+  }
+  .info-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 30px;
+    font-size: 0.88em;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .info-bar strong { color: var(--text); }
+  .visual-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .visual-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  }
+  .card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .section-tag {
+    display: inline-block;
+    background: var(--mint);
+    color: var(--navy);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.8em;
+    margin-right: 10px;
+  }
+  .card-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    display: inline;
+  }
+  .card-sub {
+    color: var(--muted);
+    font-size: 0.85em;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: var(--mint);
+    color: var(--navy);
+  }
+  .btn-primary:hover { background: #00E0CC; }
+  .btn-record {
+    background: var(--red);
+    color: white;
+  }
+  .btn-record:hover { background: #B91C1C; }
+  .btn-record.recording {
+    background: var(--gold);
+    color: var(--navy);
+    animation: pulseRec 1s infinite;
+  }
+  .btn-stop {
+    background: var(--bg2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  @keyframes pulseRec {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .stage {
+    padding: 32px;
+    min-height: 480px;
+    position: relative;
+    background: var(--card);
+  }
+  .stage.dark { background: var(--navy); }
+  .stage.light { background: #F0F7FA; color: var(--navy); }
+
+  /* ═══════════════════════════════════════════════════
+     ANIMATION KEYFRAMES
+     ═══════════════════════════════════════════════════ */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes countUp {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(0,196,180,0.3); }
+    50% { box-shadow: 0 0 40px rgba(0,196,180,0.6); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  @keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  @keyframes drawLine {
+    from { stroke-dashoffset: 1000; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* ═══════════════════════════════════════════════════
+     S1: OPENING & IDEATION
+     ═══════════════════════════════════════════════════ */
+  #s1 .hero {
+    text-align: center;
+    padding: 40px 20px;
+    color: white;
+  }
+  #s1.playing .hero-icon {
+    animation: float 3s ease-in-out infinite, scaleIn 0.8s ease-out;
+    display: inline-block;
+    font-size: 5em;
+    color: var(--mint);
+    margin-bottom: 20px;
+  }
+  #s1.playing .hero-title {
+    animation: slideInLeft 1s 0.5s both;
+    font-size: 2.6em;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--mint), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  #s1.playing .hero-sub {
+    animation: slideInRight 1s 1s both;
+    font-size: 1.3em;
+    color: var(--muted);
+    margin-bottom: 30px;
+    font-style: italic;
+  }
+  .pillar-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 30px;
+  }
+  .pillar {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+    opacity: 0;
+  }
+  #s1.playing .pillar:nth-child(1) { animation: fadeInUp 0.8s 1.8s both; }
+  #s1.playing .pillar:nth-child(2) { animation: fadeInUp 0.8s 2.3s both; }
+  #s1.playing .pillar:nth-child(3) { animation: fadeInUp 0.8s 2.8s both; }
+  .pillar-icon {
+    font-size: 2.5em;
+    margin-bottom: 12px;
+    color: var(--mint);
+  }
+  .pillar h4 { color: white; font-size: 1.05em; margin-bottom: 6px; }
+  .pillar p { color: var(--muted); font-size: 0.85em; }
+
+  /* ═══════════════════════════════════════════════════
+     S2: PROFIL UMKM
+     ═══════════════════════════════════════════════════ */
+  #s2 { padding: 32px; }
+  #s2 h2 { font-size: 1.8em; margin-bottom: 8px; color: var(--navy); }
+  #s2 .sub { color: var(--teal); margin-bottom: 24px; }
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .fact-card, .svc-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    opacity: 0;
+  }
+  #s2.playing .fact-card:nth-child(1) { animation: slideInLeft 0.6s 0.2s both; }
+  #s2.playing .fact-card:nth-child(2) { animation: slideInLeft 0.6s 0.5s both; }
+  #s2.playing .fact-card:nth-child(3) { animation: slideInLeft 0.6s 0.8s both; }
+  #s2.playing .fact-card:nth-child(4) { animation: slideInLeft 0.6s 1.1s both; }
+  .fact-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .fact-icon {
+    width: 44px; height: 44px;
+    background: var(--teal);
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4em;
+    flex-shrink: 0;
+  }
+  .fact-label { font-weight: 700; color: var(--teal); font-size: 0.85em; }
+  .fact-value { color: var(--navy); font-size: 0.95em; }
+  #s2.playing .svc-panel {
+    animation: slideInRight 0.8s 1.4s both;
+    background: var(--navy);
+    color: white;
+  }
+  .svc-panel h3 { color: var(--mint); margin-bottom: 14px; font-size: 1.05em; }
+  .svc-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9em;
+  }
+  .svc-item:last-child { border-bottom: none; }
+  .svc-check { color: var(--mint); }
+
+  /* ═══════════════════════════════════════════════════
+     S3: DATA EKSPLORASI
+     ═══════════════════════════════════════════════════ */
+  #s3 { padding: 32px; background: linear-gradient(135deg, #1C1033, #0F0A1F); color: white; }
+  #s3 h2 { font-size: 1.8em; margin-bottom: 8px; }
+  #s3 .sub { color: var(--purple); margin-bottom: 28px; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    opacity: 0;
+  }
+  #s3.playing .stat-card:nth-child(1) { animation: scaleIn 0.6s 0.3s both; }
+  #s3.playing .stat-card:nth-child(2) { animation: scaleIn 0.6s 0.6s both; }
+  #s3.playing .stat-card:nth-child(3) { animation: scaleIn 0.6s 0.9s both; }
+  #s3.playing .stat-card:nth-child(4) { animation: scaleIn 0.6s 1.2s both; }
+  .stat-icon { font-size: 2em; color: #C4B5FD; margin-bottom: 8px; }
+  .stat-val {
+    font-size: 2em;
+    font-weight: 800;
+    color: #C4B5FD;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-label { font-size: 0.85em; color: white; margin-bottom: 4px; }
+  .stat-sub { font-size: 0.75em; color: #94A3B8; }
+  .process-flow {
+    display: grid;
+    grid-template-columns: 1fr 0.1fr 1fr 0.1fr 1fr 0.1fr 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  .step {
+    background: rgba(124, 58, 237, 0.2);
+    border-left: 4px solid var(--purple);
+    padding: 14px;
+    border-radius: 6px;
+    opacity: 0;
+  }
+  #s3.playing .step:nth-child(1) { animation: slideInLeft 0.5s 1.6s both; }
+  #s3.playing .step:nth-child(3) { animation: slideInLeft 0.5s 2.0s both; }
+  #s3.playing .step:nth-child(5) { animation: slideInLeft 0.5s 2.4s both; }
+  #s3.playing .step:nth-child(7) { animation: slideInLeft 0.5s 2.8s both; }
+  .step-num { font-size: 1.4em; color: #C4B5FD; font-weight: 800; margin-bottom: 4px; }
+  .step-text { font-size: 0.82em; }
+  .arrow {
+    color: var(--purple);
+    font-size: 1.4em;
+    text-align: center;
+    opacity: 0;
+  }
+  #s3.playing .arrow:nth-of-type(1) { animation: fadeIn 0.4s 1.85s both; }
+  #s3.playing .arrow:nth-of-type(2) { animation: fadeIn 0.4s 2.25s both; }
+  #s3.playing .arrow:nth-of-type(3) { animation: fadeIn 0.4s 2.65s both; }
+
+  /* ═══════════════════════════════════════════════════
+     S4: FM CLUSTERING
+     ═══════════════════════════════════════════════════ */
+  #s4 { padding: 32px; background: #F0F7FA; color: var(--navy); }
+  #s4 h2 { font-size: 1.8em; margin-bottom: 8px; }
+  #s4 .sub { color: var(--red); margin-bottom: 24px; }
+  .cluster-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+  }
+  .cluster-list .clu {
+    background: white;
+    border-left: 5px solid;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    opacity: 0;
+  }
+  #s4.playing .clu:nth-child(1) { animation: slideInLeft 0.6s 0.2s both; border-color: var(--gold); }
+  #s4.playing .clu:nth-child(2) { animation: slideInLeft 0.6s 0.5s both; border-color: var(--green); }
+  #s4.playing .clu:nth-child(3) { animation: slideInLeft 0.6s 0.8s both; border-color: #2563EB; }
+  #s4.playing .clu:nth-child(4) { animation: slideInLeft 0.6s 1.1s both; border-color: #64748B; }
+  .clu-name { font-weight: 700; font-size: 1em; }
+  .clu-crit { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
+  .clu-num { font-size: 1.8em; font-weight: 800; line-height: 1; }
+  .clu-pct { font-size: 0.75em; color: var(--muted); text-align: right; }
+  .chart-pane {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    position: relative;
+    opacity: 0;
+  }
+  #s4.playing .chart-pane { animation: fadeIn 1s 1.4s both; }
+  .chart-pane h3 {
+    text-align: center;
+    font-size: 0.95em;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .chart-canvas-wrap { position: relative; height: 320px; }
+
+  /* ═══════════════════════════════════════════════════
+     S5: INSIGHT PARETO
+     ═══════════════════════════════════════════════════ */
+  #s5 { padding: 32px; background: var(--navy); color: white; }
+  #s5 h2 { font-size: 1.8em; margin-bottom: 8px; }
+  #s5 .sub { color: var(--mint); margin-bottom: 24px; }
+  .pareto-box {
+    background: linear-gradient(135deg, #0E2A45, #102E50);
+    border: 1px solid rgba(0,196,180,0.3);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 18px;
+    align-items: center;
+    opacity: 0;
+  }
+  #s5.playing .pareto-box { animation: scaleIn 0.8s 0.3s both, glow 3s 1.2s infinite; }
+  .pareto-icon { font-size: 3em; color: var(--mint); }
+  .pareto-title { color: var(--mint); font-weight: 700; margin-bottom: 6px; }
+  .pareto-text { font-size: 1em; color: var(--muted); line-height: 1.6; }
+  .pareto-text strong { color: var(--gold); font-size: 1.1em; }
+  .hilite-mint { color: var(--mint); font-weight: 700; }
+  .chart-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-box-dark {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    opacity: 0;
+  }
+  #s5.playing .chart-box-dark:nth-child(1) { animation: slideInLeft 0.8s 1.5s both; }
+  #s5.playing .chart-box-dark:nth-child(2) { animation: slideInRight 0.8s 1.5s both; }
+  .chart-box-dark h3 {
+    color: white;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .chart-box-dark .chart-canvas-wrap { height: 220px; }
+
+  /* ═══════════════════════════════════════════════════
+     S6: BROADCAST WA
+     ═══════════════════════════════════════════════════ */
+  #s6 { padding: 32px; background: #F0F7FA; color: var(--navy); }
+  #s6 h2 { font-size: 1.8em; margin-bottom: 8px; }
+  #s6 .sub { color: var(--amber); margin-bottom: 20px; }
+  .wa-tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .wa-tab {
+    padding: 8px 16px;
+    border: 2px solid;
+    border-radius: 100px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85em;
+    transition: all 0.2s;
+  }
+  .wa-tab.active { color: white; }
+  .wa-tab[data-seg="loyal"] { border-color: var(--gold); color: var(--gold); }
+  .wa-tab[data-seg="loyal"].active { background: var(--gold); color: white; }
+  .wa-tab[data-seg="rutin"] { border-color: var(--green); color: var(--green); }
+  .wa-tab[data-seg="rutin"].active { background: var(--green); color: white; }
+  .wa-tab[data-seg="potensial"] { border-color: #2563EB; color: #2563EB; }
+  .wa-tab[data-seg="potensial"].active { background: #2563EB; color: white; }
+  .wa-tab[data-seg="baru"] { border-color: #64748B; color: #64748B; }
+  .wa-tab[data-seg="baru"].active { background: #64748B; color: white; }
+  .wa-phone {
+    background: #ECE5DD;
+    border-radius: 18px;
+    padding: 18px;
+    max-width: 540px;
+    margin: 0 auto;
+    min-height: 340px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  .wa-header {
+    background: #075E54;
+    color: white;
+    margin: -18px -18px 14px;
+    padding: 12px 18px;
+    border-radius: 18px 18px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85em;
+  }
+  .wa-avatar {
+    width: 32px; height: 32px;
+    background: var(--mint);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    font-weight: 700;
+  }
+  .wa-bubble {
+    background: #DCF8C6;
+    border-radius: 12px 0 12px 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    margin-left: auto;
+    max-width: 88%;
+    font-size: 0.85em;
+    line-height: 1.5;
+    white-space: pre-line;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .wa-bubble.show { animation: fadeInUp 0.5s both; }
+  .wa-time { font-size: 0.7em; color: #555; text-align: right; margin-top: 6px; }
+  .wa-bubble.incoming {
+    background: white;
+    border-radius: 0 12px 12px 12px;
+    margin-left: 0;
+  }
+  .wa-promo {
+    background: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    padding: 6px 12px;
+    text-align: center;
+    font-size: 0.75em;
+    margin-top: 6px;
+    color: #333;
+    opacity: 0;
+  }
+  .wa-promo.show { animation: fadeIn 0.5s both; }
+
+  /* ═══════════════════════════════════════════════════
+     S7: PENDANAAN
+     ═══════════════════════════════════════════════════ */
+  #s7 { padding: 32px; background: #0A1F0A; color: white; }
+  #s7 h2 { font-size: 1.8em; margin-bottom: 8px; }
+  #s7 .sub { color: #4ADE80; margin-bottom: 20px; }
+  .funding-hero {
+    background: rgba(22,163,74,0.15);
+    border: 1px solid rgba(22,163,74,0.4);
+    border-radius: 14px;
+    padding: 22px 28px;
+    margin-bottom: 24px;
+    text-align: center;
+    opacity: 0;
+  }
+  #s7.playing .funding-hero { animation: scaleIn 0.8s 0.2s both; }
+  .funding-label { color: #4ADE80; font-weight: 700; margin-bottom: 8px; font-size: 0.9em; }
+  .funding-amount {
+    font-size: 2.4em;
+    font-weight: 800;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .fund-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 20px;
+  }
+  .donut-pane {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px;
+    opacity: 0;
+  }
+  #s7.playing .donut-pane { animation: slideInLeft 0.8s 1.0s both; }
+  .donut-pane h3 { text-align: center; color: #4ADE80; font-size: 0.95em; margin-bottom: 8px; }
+  .donut-pane .chart-canvas-wrap { height: 280px; }
+  .tier-list .tier {
+    background: rgba(255,255,255,0.04);
+    border-left: 4px solid var(--green);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    opacity: 0;
+  }
+  #s7.playing .tier:nth-child(1) { animation: slideInRight 0.6s 1.0s both; }
+  #s7.playing .tier:nth-child(2) { animation: slideInRight 0.6s 1.4s both; }
+  #s7.playing .tier:nth-child(3) { animation: slideInRight 0.6s 1.8s both; }
+  .tier-name { color: #4ADE80; font-weight: 700; font-size: 0.95em; }
+  .tier-val { color: #cbd5e1; font-size: 0.82em; margin-top: 2px; }
+  .tier-return {
+    background: var(--green);
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 700;
+    text-align: center;
+  }
+  .tier-return-val { font-size: 1.1em; }
+  .tier-return-label { font-size: 0.65em; opacity: 0.9; }
+
+  /* ═══════════════════════════════════════════════════
+     S8: ROADMAP & EXIT
+     ═══════════════════════════════════════════════════ */
+  #s8 { padding: 32px; background: #F0F7FA; color: var(--navy); }
+  #s8 h2 { font-size: 1.8em; margin-bottom: 8px; }
+  #s8 .sub { color: var(--teal); margin-bottom: 24px; }
+  .phase-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .phase {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    opacity: 0;
+  }
+  #s8.playing .phase:nth-child(1) { animation: fadeInUp 0.7s 0.3s both; }
+  #s8.playing .phase:nth-child(2) { animation: fadeInUp 0.7s 0.8s both; }
+  #s8.playing .phase:nth-child(3) { animation: fadeInUp 0.7s 1.3s both; }
+  .phase-head { padding: 10px 16px; color: white; font-weight: 700; font-size: 0.85em; }
+  .phase:nth-child(1) .phase-head { background: var(--teal); }
+  .phase:nth-child(2) .phase-head { background: var(--navy); }
+  .phase:nth-child(3) .phase-head { background: var(--purple); }
+  .phase-body { padding: 16px; }
+  .phase-title { font-weight: 700; margin-bottom: 8px; }
+  .phase-items { font-size: 0.82em; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
+  .phase-target {
+    padding: 8px 12px;
+    color: white;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.95em;
+    text-align: center;
+  }
+  .phase:nth-child(1) .phase-target { background: var(--teal); }
+  .phase:nth-child(2) .phase-target { background: var(--navy); }
+  .phase:nth-child(3) .phase-target { background: var(--purple); }
+  .proj-and-exit {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+  }
+  .proj-chart {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    opacity: 0;
+  }
+  #s8.playing .proj-chart { animation: slideInLeft 0.8s 1.7s both; }
+  .proj-chart h3 { font-size: 0.95em; color: var(--navy); margin-bottom: 8px; }
+  .proj-chart .chart-canvas-wrap { height: 200px; }
+  .exit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .exit-card {
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    text-align: center;
+    opacity: 0;
+  }
+  #s8.playing .exit-card:nth-child(1) { animation: scaleIn 0.5s 1.9s both; background: var(--teal); }
+  #s8.playing .exit-card:nth-child(2) { animation: scaleIn 0.5s 2.1s both; background: var(--navy); }
+  #s8.playing .exit-card:nth-child(3) { animation: scaleIn 0.5s 2.3s both; background: var(--purple); }
+  #s8.playing .exit-card:nth-child(4) { animation: scaleIn 0.5s 2.5s both; background: #64748B; }
+  .exit-name { font-weight: 700; font-size: 0.95em; }
+  .exit-sub { font-size: 0.75em; opacity: 0.9; margin-top: 2px; }
+
+  /* ═══════════════════════════════════════════════════
+     CLOSING
+     ═══════════════════════════════════════════════════ */
+  #s9 { padding: 0; background: var(--navy); color: white; min-height: 480px; position: relative; overflow: hidden; }
+  .closing-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    height: 480px;
+  }
+  .closing-left { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+  .closing-right {
+    background: #071C38;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  #s9.playing .closing-badge {
+    animation: slideInLeft 0.6s 0.2s both;
+    color: var(--mint);
+    letter-spacing: 4px;
+    font-size: 0.85em;
+    margin-bottom: 10px;
+  }
+  #s9.playing .closing-title {
+    animation: slideInLeft 0.8s 0.5s both;
+    font-size: 2.6em;
+    font-weight: 800;
+    margin-bottom: 24px;
+    background: linear-gradient(90deg, white, var(--mint));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .closing-pts { list-style: none; padding: 0; }
+  .closing-pts li {
+    padding: 8px 0;
+    font-size: 1em;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    opacity: 0;
+  }
+  #s9.playing .closing-pts li:nth-child(1) { animation: slideInLeft 0.5s 1.3s both; }
+  #s9.playing .closing-pts li:nth-child(2) { animation: slideInLeft 0.5s 1.7s both; }
+  #s9.playing .closing-pts li:nth-child(3) { animation: slideInLeft 0.5s 2.1s both; }
+  #s9.playing .closing-pts li:nth-child(4) { animation: slideInLeft 0.5s 2.5s both; }
+  .closing-pts .arr { color: var(--mint); font-size: 1.3em; }
+  #s9.playing .closing-cta {
+    animation: fadeIn 0.8s 3.0s both;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 3px solid var(--mint);
+  }
+  .closing-cta-label { color: var(--gold); font-weight: 700; font-size: 1.2em; }
+  #s9.playing .closing-emoji {
+    animation: scaleIn 0.8s 0.3s both, float 3s 1.2s infinite;
+    font-size: 5em;
+    margin-bottom: 24px;
+  }
+  #s9.playing .closing-team-label {
+    animation: fadeIn 0.6s 1.0s both;
+    color: var(--mint);
+    font-weight: 700;
+    margin-bottom: 14px;
+    font-size: 1.05em;
+  }
+  .closing-names { font-size: 0.85em; color: var(--muted); line-height: 1.8; }
+  #s9.playing .closing-names li:nth-child(1) { animation: fadeIn 0.3s 1.3s both; }
+  #s9.playing .closing-names li:nth-child(2) { animation: fadeIn 0.3s 1.5s both; }
+  #s9.playing .closing-names li:nth-child(3) { animation: fadeIn 0.3s 1.7s both; }
+  #s9.playing .closing-names li:nth-child(4) { animation: fadeIn 0.3s 1.9s both; }
+  #s9.playing .closing-names li:nth-child(5) { animation: fadeIn 0.3s 2.1s both; }
+  #s9.playing .closing-names li:nth-child(6) { animation: fadeIn 0.3s 2.3s both; }
+  #s9.playing .closing-names li:nth-child(7) { animation: fadeIn 0.3s 2.5s both; }
+  #s9.playing .closing-names li:nth-child(8) { animation: fadeIn 0.3s 2.7s both; }
+  .closing-names li { list-style: none; opacity: 0; }
+
+  /* Recording indicator */
+  .rec-indicator {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(220,38,38,0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.8em;
+    font-weight: 700;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .rec-indicator.active { display: inline-flex; }
+  .rec-dot {
+    width: 10px; height: 10px;
+    background: white;
+    border-radius: 50%;
+    animation: pulseRec 1s infinite;
+  }
+
+  .help-box {
+    background: rgba(244,197,66,0.1);
+    border: 1px solid rgba(244,197,66,0.3);
+    border-radius: 12px;
+    padding: 18px 24px;
+    margin-bottom: 30px;
+    color: #fde68a;
+    font-size: 0.88em;
+    line-height: 1.6;
+  }
+  .help-box strong { color: var(--gold); }
+  
+  footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 20px 20px;
+    font-size: 0.85em;
+  }
+
+  @media (max-width: 900px) {
+    .stat-grid, .pillar-row, .profile-grid, .cluster-layout,
+    .fund-layout, .chart-pair, .phase-row, .proj-and-exit,
+    .closing-grid {
+      grid-template-columns: 1fr;
+    }
+    .process-flow { grid-template-columns: 1fr; gap: 8px; }
+    .arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">KELOMPOK 3 — SIMULASI BISNIS DIGITAL</div>
+    <h1>Lab Klinik Prodifa — Animated Visuals</h1>
+    <p>Visualisasi beranimasi untuk klip video storytelling · 8 section · Siap rekam jadi video</p>
+  </header>
+
+  <div class="help-box">
+    <strong>💡 Cara pakai:</strong> Klik <strong>▶ Play Animation</strong> untuk preview animasi. 
+    Klik <strong>🔴 Record</strong> untuk merekam visual menjadi video (format WebM). 
+    Setelah selesai, file akan otomatis terunduh. Bisa langsung disisipkan ke video editor (CapCut, DaVinci, Premiere) sebagai B-roll.
+  </div>
+
+  <div class="info-bar">
+    <div><strong>📊 Data:</strong> 2.067 pasien · 2.367 transaksi · Rp 415 Jt revenue</div>
+    <div><strong>🎬 Tip:</strong> Untuk kualitas terbaik, rekam 1 visual per kali</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 1 — OPENING & IDEATION
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s1">
+    <div class="card-header">
+      <div>
+        <span class="section-tag">S1</span>
+        <span class="card-title">Opening & Ideation — Aqiil Farras</span>
+        <div class="card-sub">Hook + 3 Pilar Data Science (Budi Rahardjo) · Durasi animasi: 4 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s1')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s1', 5)">🔴 Record (5s)</button>
+      </div>
+    </div>
+    <div class="stage dark" id="s1">
+      <div class="rec-indicator" id="rec-s1"><span class="rec-dot"></span>REC</div>
+      <div class="hero">
+        <div class="hero-icon">🔬</div>
+        <div class="hero-title">Lab Klinik Prodifa</div>
+        <div class="hero-sub">"Data Science bukan milik perusahaan besar saja..."</div>
+        <div class="pillar-row">
+          <div class="pillar">
+            <div class="pillar-icon">💻</div>
+            <h4>Hacking Skill</h4>
+            <p>Kemampuan coding & pengolahan data</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar-icon">📊</div>
+            <h4>Matematika & Statistik</h4>
+            <p>Analisis kuantitatif & pemodelan</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar-icon">🎯</div>
+            <h4>Domain Problem</h4>
+            <p>Pemahaman konteks bisnis</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 2 — PROFIL UMKM
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s2">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--teal);color:white;">S2</span>
+        <span class="card-title">Profil UMKM & Layanan — Made Rizal</span>
+        <div class="card-sub">Profil Lab Prodifa + 5 jenis layanan · Durasi animasi: 3 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s2')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s2', 5)">🔴 Record (5s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s2">
+      <div class="rec-indicator" id="rec-s2"><span class="rec-dot"></span>REC</div>
+      <h2>Laboratorium Klinik Prodifa</h2>
+      <div class="sub">Pangkajene, Sulawesi Selatan · UMKM Kesehatan</div>
+      <div class="profile-grid">
+        <div>
+          <div class="fact-card">
+            <div class="fact-icon">📍</div>
+            <div>
+              <div class="fact-label">Lokasi</div>
+              <div class="fact-value">Jl. Mawar No.12, Pangkajene Pangkep</div>
+            </div>
+          </div>
+          <div class="fact-card" style="margin-top:14px;">
+            <div class="fact-icon">🕐</div>
+            <div>
+              <div class="fact-label">Operasional</div>
+              <div class="fact-value">Senin–Sabtu, 08.00–20.00 WITA</div>
+            </div>
+          </div>
+          <div class="fact-card" style="margin-top:14px;">
+            <div class="fact-icon">📱</div>
+            <div>
+              <div class="fact-label">Kontak</div>
+              <div class="fact-value">0812-4236-3321 | @prodifapangkep</div>
+            </div>
+          </div>
+          <div class="fact-card" style="margin-top:14px;">
+            <div class="fact-icon">🔬</div>
+            <div>
+              <div class="fact-label">Jenis</div>
+              <div class="fact-value">Laboratorium Klinik Umum</div>
+            </div>
+          </div>
+        </div>
+        <div class="svc-panel">
+          <h3>🧪 Layanan Pemeriksaan</h3>
+          <div class="svc-item"><span class="svc-check">✓</span> Hematologi — darah rutin, diff count</div>
+          <div class="svc-item"><span class="svc-check">✓</span> Kimia Klinik — gula darah, kolesterol</div>
+          <div class="svc-item"><span class="svc-check">✓</span> Imunologi — HBsAg, HIV, Dengue</div>
+          <div class="svc-item"><span class="svc-check">✓</span> Urinalisis — makroskopik & kimia</div>
+          <div class="svc-item"><span class="svc-check">✓</span> Paket MCU — komprehensif</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 3 — DATA EKSPLORASI
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s3">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--purple);color:white;">S3</span>
+        <span class="card-title">Pengumpulan & Eksplorasi Data — Kauzaki</span>
+        <div class="card-sub">4 big stats + proses pengolahan · Durasi animasi: 4 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s3')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s3', 6)">🔴 Record (6s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s3">
+      <div class="rec-indicator" id="rec-s3"><span class="rec-dot"></span>REC</div>
+      <h2>Pengumpulan & Eksplorasi Data</h2>
+      <div class="sub">Domain Problem → Hacking Skill (Budi Rahardjo)</div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon">💾</div>
+          <div class="stat-val" data-target="2367">0</div>
+          <div class="stat-label">Baris Data</div>
+          <div class="stat-sub">Transaksi tercatat</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-val" data-target="2067">0</div>
+          <div class="stat-label">Pasien Unik</div>
+          <div class="stat-sub">Diidentifikasi dari nama</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-val" data-prefix="Rp " data-target="415" data-suffix=" Jt">Rp 0</div>
+          <div class="stat-label">Total Pendapatan</div>
+          <div class="stat-sub">Satu periode data</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-val" data-target="9.5" data-suffix="%">0%</div>
+          <div class="stat-label">Pasien Berulang</div>
+          <div class="stat-sub">Kunjungi 2+ kali</div>
+        </div>
+      </div>
+      <div class="process-flow">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Ekspor data dari sistem registrasi</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Pembersihan: normalisasi nama</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Identifikasi pasien unik</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Siap untuk analisis ML</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 4 — FM CLUSTERING
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s4">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--red);color:white;">S4</span>
+        <span class="card-title">Machine Learning: FM Clustering — Arif Hidayat</span>
+        <div class="card-sub">4 segmen pasien + pie chart distribusi · Durasi animasi: 3.5 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s4')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s4', 6)">🔴 Record (6s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s4">
+      <div class="rec-indicator" id="rec-s4"><span class="rec-dot"></span>REC</div>
+      <h2>Machine Learning: FM Clustering</h2>
+      <div class="sub">Adaptasi model RFM (Recency-Frequency-Monetary)</div>
+      <div class="cluster-layout">
+        <div class="cluster-list">
+          <div class="clu">
+            <div>
+              <div class="clu-name" style="color:var(--gold);">⭐ Pasien Loyal</div>
+              <div class="clu-crit">5+ kunjungan ATAU belanja ≥ Rp 600rb</div>
+            </div>
+            <div>
+              <div class="clu-num" style="color:var(--gold);">95</div>
+              <div class="clu-pct">4,6%</div>
+            </div>
+          </div>
+          <div class="clu">
+            <div>
+              <div class="clu-name" style="color:var(--green);">🔵 Pasien Rutin</div>
+              <div class="clu-crit">3–4 kunjungan</div>
+            </div>
+            <div>
+              <div class="clu-num" style="color:var(--green);">29</div>
+              <div class="clu-pct">1,4%</div>
+            </div>
+          </div>
+          <div class="clu">
+            <div>
+              <div class="clu-name" style="color:#2563EB;">🟡 Pasien Potensial</div>
+              <div class="clu-crit">2 kunjungan</div>
+            </div>
+            <div>
+              <div class="clu-num" style="color:#2563EB;">119</div>
+              <div class="clu-pct">5,8%</div>
+            </div>
+          </div>
+          <div class="clu">
+            <div>
+              <div class="clu-name" style="color:#64748B;">🟢 Pasien Baru</div>
+              <div class="clu-crit">1 kunjungan</div>
+            </div>
+            <div>
+              <div class="clu-num" style="color:#64748B;">1.824</div>
+              <div class="clu-pct">88,2%</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-pane">
+          <h3>Distribusi Segmen Pasien</h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartCluster"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 5 — INSIGHT PARETO
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s5">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--teal);color:white;">S5</span>
+        <span class="card-title">Insight & Visualisasi Data — Nigel Trifosa</span>
+        <div class="card-sub">Fenomena Pareto + 2 bar chart · Durasi animasi: 4 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s5')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s5', 6)">🔴 Record (6s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s5">
+      <div class="rec-indicator" id="rec-s5"><span class="rec-dot"></span>REC</div>
+      <h2>Insight & Visualisasi Data</h2>
+      <div class="sub">Fenomena Pareto di Lab Prodifa</div>
+      <div class="pareto-box">
+        <div class="pareto-icon">📈</div>
+        <div>
+          <div class="pareto-title">Fenomena Pareto di Lab Prodifa</div>
+          <div class="pareto-text">
+            <strong>95 pasien (4,6%)</strong> menghasilkan <strong>Rp 77,8 Jt (18,7%)</strong> dari total pendapatan. 
+            Rata-rata belanja Pasien Loyal (Rp 819rb) = <span class="hilite-mint">5× lipat</span> Pasien Baru (Rp 163rb).
+          </div>
+        </div>
+      </div>
+      <div class="chart-pair">
+        <div class="chart-box-dark">
+          <h3>Revenue per Segmen (Rp Juta)</h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartRevenue"></canvas>
+          </div>
+        </div>
+        <div class="chart-box-dark">
+          <h3>Rata-rata Belanja/Pasien (Rp ribu)</h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartAvg"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 6 — BROADCAST WA
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s6">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--amber);color:white;">S6</span>
+        <span class="card-title">Strategi Marketing & Broadcast WA — Alfira Damayanti</span>
+        <div class="card-sub">Simulasi broadcast WA per segmen · Klik tab atau biarkan auto-cycle saat record · Durasi animasi: 8 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playWA()">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s6', 9)">🔴 Record (9s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s6">
+      <div class="rec-indicator" id="rec-s6"><span class="rec-dot"></span>REC</div>
+      <h2>Broadcast WhatsApp per Segmen</h2>
+      <div class="sub">Pesan ditargetkan berbeda untuk tiap cluster pasien</div>
+      <div class="wa-tab-row">
+        <button class="wa-tab active" data-seg="loyal" onclick="switchWA('loyal')">⭐ Loyal</button>
+        <button class="wa-tab" data-seg="rutin" onclick="switchWA('rutin')">🔵 Rutin</button>
+        <button class="wa-tab" data-seg="potensial" onclick="switchWA('potensial')">🟡 Potensial</button>
+        <button class="wa-tab" data-seg="baru" onclick="switchWA('baru')">🟢 Baru</button>
+      </div>
+      <div class="wa-phone">
+        <div class="wa-header">
+          <div class="wa-avatar">P</div>
+          <div>
+            <div style="font-weight:700;">Lab Prodifa</div>
+            <div style="font-size:0.85em;opacity:0.7;" id="waRecipient">Terkirim ke 11 pasien Loyal</div>
+          </div>
+        </div>
+        <div id="waChat"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 7 — PENDANAAN
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s7">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--green);color:white;">S7</span>
+        <span class="card-title">Pendanaan & Pitching — Umniatul Ula</span>
+        <div class="card-sub">Donut alokasi dana + 3 tier investor · Durasi animasi: 3 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s7')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s7', 5)">🔴 Record (5s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s7">
+      <div class="rec-indicator" id="rec-s7"><span class="rec-dot"></span>REC</div>
+      <h2>Kebutuhan & Rencana Pendanaan</h2>
+      <div class="sub">Seed Investment Round</div>
+      <div class="funding-hero">
+        <div class="funding-label">💰 Target Seed Round</div>
+        <div class="funding-amount">Rp 100 – 150 Juta</div>
+      </div>
+      <div class="fund-layout">
+        <div class="donut-pane">
+          <h3>Alokasi Penggunaan Dana</h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartFund"></canvas>
+          </div>
+        </div>
+        <div class="tier-list">
+          <div class="tier">
+            <div>
+              <div class="tier-name">Seed Investor</div>
+              <div class="tier-val">Rp 50–100 Jt · Equity 10–15%</div>
+            </div>
+            <div class="tier-return">
+              <div class="tier-return-val">1,5–2×</div>
+              <div class="tier-return-label">Return</div>
+            </div>
+          </div>
+          <div class="tier">
+            <div>
+              <div class="tier-name">Strategic Investor</div>
+              <div class="tier-val">Rp 100–250 Jt · Equity 20–25%</div>
+            </div>
+            <div class="tier-return">
+              <div class="tier-return-val">2–2,5×</div>
+              <div class="tier-return-label">Return</div>
+            </div>
+          </div>
+          <div class="tier">
+            <div>
+              <div class="tier-name">Lead Investor</div>
+              <div class="tier-val">Rp 250–500 Jt · Equity 30–35%</div>
+            </div>
+            <div class="tier-return">
+              <div class="tier-return-val">2,5–3×</div>
+              <div class="tier-return-label">Return</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 8 — ROADMAP & EXIT
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s8">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--navy);color:white;">S8</span>
+        <span class="card-title">Pengembangan & Exit Strategi — Raisyah A.K.</span>
+        <div class="card-sub">Roadmap 3 fase + proyeksi + exit options · Durasi animasi: 3.5 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s8')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s8', 6)">🔴 Record (6s)</button>
+      </div>
+    </div>
+    <div class="stage" id="s8">
+      <div class="rec-indicator" id="rec-s8"><span class="rec-dot"></span>REC</div>
+      <h2>Pengembangan & Exit Strategi</h2>
+      <div class="sub">Roadmap 3 fase menuju Rp 1 Miliar/tahun</div>
+      <div class="phase-row">
+        <div class="phase">
+          <div class="phase-head">Phase 1 · Bulan 0–12</div>
+          <div class="phase-body">
+            <div class="phase-title">Stabilisasi & Digitalisasi</div>
+            <div class="phase-items">Sistem digital · Broadcast WA · Upgrade alat</div>
+            <div class="phase-target">Rp 540 Jt/thn (+30%)</div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-head">Phase 2 · Bulan 12–24</div>
+          <div class="phase-body">
+            <div class="phase-title">Ekspansi Layanan</div>
+            <div class="phase-items">BPJS · MCU korporasi · PCR · Reservasi online</div>
+            <div class="phase-target">Rp 665 Jt/thn (+60%)</div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-head">Phase 3 · Bulan 24–36</div>
+          <div class="phase-body">
+            <div class="phase-title">Skala & Cabang</div>
+            <div class="phase-items">Outlet Bungoro · Franchise · Branding Sulsel</div>
+            <div class="phase-target">Rp 1 M+/thn (2,5×)</div>
+          </div>
+        </div>
+      </div>
+      <div class="proj-and-exit">
+        <div class="proj-chart">
+          <h3>📈 Proyeksi Revenue & Laba (Rp Juta)</h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartProj"></canvas>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:0.95em;margin-bottom:8px;">🚪 Exit Options</h3>
+          <div class="exit-grid">
+            <div class="exit-card">
+              <div class="exit-name">Buyback</div>
+              <div class="exit-sub">Thn 3–5 · 2–3×</div>
+            </div>
+            <div class="exit-card">
+              <div class="exit-name">Akuisisi</div>
+              <div class="exit-sub">Thn 3–7 · 3–5×</div>
+            </div>
+            <div class="exit-card">
+              <div class="exit-name">Franchise</div>
+              <div class="exit-sub">Thn 4–7 · Dividen</div>
+            </div>
+            <div class="exit-card">
+              <div class="exit-name">MBO</div>
+              <div class="exit-sub">Thn 4–6 · 2–2,5×</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       CLOSING
+       ═══════════════════════════════════════════════════ -->
+  <div class="visual-card" id="card-s9">
+    <div class="card-header">
+      <div>
+        <span class="section-tag" style="background:var(--mint);color:var(--navy);">END</span>
+        <span class="card-title">Closing — Semua Anggota</span>
+        <div class="card-sub">Kesimpulan + tim Kelompok 3 · Durasi animasi: 3.5 detik</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="playAnim('s9')">▶ Play Animation</button>
+        <button class="btn btn-record" onclick="record('s9', 6)">🔴 Record (6s)</button>
+      </div>
+    </div>
+    <div class="stage dark" id="s9">
+      <div class="rec-indicator" id="rec-s9"><span class="rec-dot"></span>REC</div>
+      <div class="closing-grid">
+        <div class="closing-left">
+          <div class="closing-badge">KESIMPULAN</div>
+          <div class="closing-title">Data Science untuk UMKM</div>
+          <ul class="closing-pts">
+            <li><span class="arr">↑</span> 2.067 pasien teridentifikasi — pasar tervalidasi</li>
+            <li><span class="arr">↑</span> FM Clustering mengungkap 4 segmen pasien</li>
+            <li><span class="arr">↑</span> 18,7% revenue dari 4,6% pasien — Pareto berlaku</li>
+            <li><span class="arr">↑</span> Roadmap 3 fase menuju Rp 1 M/tahun</li>
+          </ul>
+          <div class="closing-cta">
+            <div class="closing-cta-label">SEED INVESTMENT — Rp 100–150 Juta</div>
+          </div>
+        </div>
+        <div class="closing-right">
+          <div class="closing-emoji">🤝</div>
+          <div class="closing-team-label">Tim Kelompok 3</div>
+          <ul class="closing-names">
+            <li>1. Aqiil Farras</li>
+            <li>2. Made Rizal</li>
+            <li>3. Kauzaki</li>
+            <li>4. Arif Hidayat</li>
+            <li>5. Nigel Trifosa</li>
+            <li>6. Alfira D.</li>
+            <li>7. Umniatul U.</li>
+            <li>8. Raisyah A.K.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Simulasi Bisnis Digital (Data Science) · Referensi: Framework Budi Rahardjo</p>
+    <p style="margin-top:8px;">Lab Klinik Prodifa · @prodifapangkep · Kelompok 3 · 2025</p>
+  </footer>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CHART.JS DEFAULTS
+// ═══════════════════════════════════════════════════════
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.animation.duration = 1500;
+Chart.defaults.animation.easing = 'easeOutQuart';
+
+let chartInstances = {};
+
+// ═══════════════════════════════════════════════════════
+// CHART INIT FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function initChartCluster() {
+  if (chartInstances.cluster) chartInstances.cluster.destroy();
+  const ctx = document.getElementById('chartCluster').getContext('2d');
+  chartInstances.cluster = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Loyal (95)', 'Rutin (29)', 'Potensial (119)', 'Baru (1.824)'],
+      datasets: [{
+        data: [95, 29, 119, 1824],
+        backgroundColor: ['#F4C542', '#16A34A', '#2563EB', '#64748B'],
+        borderColor: '#fff', borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1800, animateRotate: true, animateScale: true },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#0B2545', font: { size: 11 }, padding: 10 }
+        }
+      },
+      cutout: '55%'
+    }
+  });
+}
+
+function initChartRevenue() {
+  if (chartInstances.revenue) chartInstances.revenue.destroy();
+  const ctx = document.getElementById('chartRevenue').getContext('2d');
+  chartInstances.revenue = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Loyal', 'Rutin', 'Potensial', 'Baru'],
+      datasets: [{
+        data: [77.8, 10.2, 30.7, 297],
+        backgroundColor: ['#F4C542', '#16A34A', '#2563EB', '#64748B'],
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1500 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => 'Rp ' + ctx.parsed.y + ' Jt' } }
+      },
+      scales: {
+        x: { ticks: { color: '#F8FAFC' }, grid: { display: false } },
+        y: { ticks: { color: '#94A3B8' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+}
+
+function initChartAvg() {
+  if (chartInstances.avg) chartInstances.avg.destroy();
+  const ctx = document.getElementById('chartAvg').getContext('2d');
+  chartInstances.avg = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Loyal', 'Rutin', 'Potensial', 'Baru'],
+      datasets: [{
+        data: [819, 353, 258, 163],
+        backgroundColor: ['#F4C542', '#16A34A', '#2563EB', '#64748B'],
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1500, delay: ctx => ctx.dataIndex * 200 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => 'Rp ' + ctx.parsed.y.toLocaleString('id-ID') } }
+      },
+      scales: {
+        x: { ticks: { color: '#F8FAFC' }, grid: { display: false } },
+        y: { ticks: { color: '#94A3B8' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+}
+
+function initChartFund() {
+  if (chartInstances.fund) chartInstances.fund.destroy();
+  const ctx = document.getElementById('chartFund').getContext('2d');
+  chartInstances.fund = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Peralatan Lab (40%)', 'Renovasi (25%)', 'Digital Mktg (20%)', 'Modal Kerja (15%)'],
+      datasets: [{
+        data: [40, 25, 20, 15],
+        backgroundColor: ['#0A7C8C', '#16A34A', '#F4C542', '#64748B'],
+        borderColor: '#0A1F0A', borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1800, animateRotate: true },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#CBD5E1', font: { size: 10 }, padding: 8 }
+        }
+      },
+      cutout: '52%'
+    }
+  });
+}
+
+function initChartProj() {
+  if (chartInstances.proj) chartInstances.proj.destroy();
+  const ctx = document.getElementById('chartProj').getContext('2d');
+  chartInstances.proj = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Baseline', 'Tahun 1', 'Tahun 2', 'Tahun 3'],
+      datasets: [
+        {
+          label: 'Revenue',
+          data: [416, 540, 665, 1040],
+          backgroundColor: '#0A7C8C',
+          borderRadius: 4,
+        },
+        {
+          label: 'Laba Bersih',
+          data: [83, 108, 133, 208],
+          backgroundColor: '#00C4B4',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1800, delay: ctx => ctx.dataIndex * 200 },
+      plugins: {
+        legend: { position: 'top', labels: { color: '#0B2545', font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Rp ' + ctx.parsed.y + ' Jt' } }
+      },
+      scales: {
+        x: { ticks: { color: '#0B2545' }, grid: { display: false } },
+        y: { ticks: { color: '#64748B' }, grid: { color: 'rgba(0,0,0,0.06)' } }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// COUNT-UP ANIMATION
+// ═══════════════════════════════════════════════════════
+function animateCount(el, duration = 1800) {
+  const target = parseFloat(el.dataset.target);
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  const start = performance.now();
+  const isFloat = !Number.isInteger(target);
+  function update(now) {
+    const elapsed = (now - start) / duration;
+    if (elapsed >= 1) {
+      el.textContent = prefix + (isFloat ? target.toFixed(1).replace('.', ',') : target.toLocaleString('id-ID')) + suffix;
+      return;
+    }
+    const eased = 1 - Math.pow(1 - elapsed, 3);
+    const val = target * eased;
+    el.textContent = prefix + (isFloat ? val.toFixed(1).replace('.', ',') : Math.floor(val).toLocaleString('id-ID')) + suffix;
+    requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ═══════════════════════════════════════════════════════
+// WA BROADCAST
+// ═══════════════════════════════════════════════════════
+const waMessages = {
+  loyal: {
+    recipient: 'Terkirim ke 11 pasien Loyal',
+    msg: `Assalamu'alaikum Bapak/Ibu [Nama] 👑
+
+Terima kasih sudah menjadi pasien setia Lab Prodifa.
+
+PROMO EKSKLUSIF untuk pasien spesial:
+✅ Paket MCU Lengkap — DISKON 15%
+✅ Prioritas antrean & hasil cepat
+
+Berlaku s.d akhir bulan ini.
+Info: 0812-4236-3321
+
+Lab Prodifa | @prodifapangkep 🔬`,
+    promo: '🎟 Kode Promo: LOYAL15'
+  },
+  rutin: {
+    recipient: 'Terkirim ke 3 pasien Rutin',
+    msg: `Halo Bapak/Ibu [Nama] 🏥
+
+Sudah saatnya jadwal pemeriksaan kontrol Anda kembali!
+
+Promo bulan ini:
+📦 Paket Gula Darah + Kolesterol + Asam Urat
+   Harga spesial!
+
+Kunjungi: Jl. Mawar No.12 Pangkep
+Senin–Sabtu 08.00–20.00
+Info: 0812-4236-3321`,
+    promo: '🎟 Kode Promo: RUTIN10'
+  },
+  potensial: {
+    recipient: 'Terkirim ke 14 pasien Potensial',
+    msg: `Halo Bapak/Ibu [Nama], apa kabar? 😊
+
+Pemeriksaan kesehatan rutin penting untuk deteksi dini berbagai penyakit.
+
+🎁 DISKON 10% untuk kunjungan berikutnya!
+
+Hubungi: 0812-4236-3321
+Jl. Mawar No.12 Pangkep
+@prodifapangkep`,
+    promo: '🎟 Kode Promo: POTENSIAL10'
+  },
+  baru: {
+    recipient: 'Terkirim ke 210 pasien Baru',
+    msg: `Assalamu'alaikum Bapak/Ibu [Nama] 🌟
+
+Terima kasih telah mempercayai Lab Prodifa.
+
+Sebagai pasien baru, dapatkan:
+🎁 GRATIS konsultasi interpretasi hasil di kunjungan berikutnya!
+
+Pemeriksaan rutin setiap 3-6 bulan dianjurkan untuk deteksi dini.
+
+Sampai jumpa! 0812-4236-3321`,
+    promo: '🎟 Kode Promo: BARU10'
+  }
+};
+
+function switchWA(seg) {
+  document.querySelectorAll('.wa-tab').forEach(b => b.classList.toggle('active', b.dataset.seg === seg));
+  const d = waMessages[seg];
+  document.getElementById('waRecipient').textContent = d.recipient;
+  const chat = document.getElementById('waChat');
+  chat.innerHTML = `
+    <div class="wa-bubble show">
+      ${d.msg}
+      <div class="wa-time">08:30 ✓✓</div>
+    </div>
+    <div class="wa-bubble incoming">
+      Terima kasih, saya tertarik dengan promonya!
+      <div class="wa-time">08:45</div>
+    </div>
+    <div class="wa-promo">${d.promo}</div>
+  `;
+  setTimeout(() => chat.querySelector('.wa-bubble.incoming')?.classList.add('show'), 800);
+  setTimeout(() => chat.querySelector('.wa-promo')?.classList.add('show'), 1500);
+}
+
+let waInterval = null;
+function playWA() {
+  const segs = ['loyal', 'rutin', 'potensial', 'baru'];
+  let i = 0;
+  switchWA(segs[0]);
+  if (waInterval) clearInterval(waInterval);
+  waInterval = setInterval(() => {
+    i = (i + 1) % segs.length;
+    switchWA(segs[i]);
+    if (i === segs.length - 1) {
+      setTimeout(() => clearInterval(waInterval), 2000);
+    }
+  }, 2000);
+}
+
+// ═══════════════════════════════════════════════════════
+// PLAY ANIMATION
+// ═══════════════════════════════════════════════════════
+function playAnim(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('playing');
+  void el.offsetWidth; // force reflow
+
+  // Init charts when needed
+  if (id === 's4') setTimeout(() => initChartCluster(), 1400);
+  if (id === 's5') setTimeout(() => { initChartRevenue(); initChartAvg(); }, 1500);
+  if (id === 's7') setTimeout(() => initChartFund(), 1000);
+  if (id === 's8') setTimeout(() => initChartProj(), 1700);
+
+  el.classList.add('playing');
+
+  // Count-up for s3
+  if (id === 's3') {
+    setTimeout(() => {
+      document.querySelectorAll('#s3 .stat-val').forEach(el => animateCount(el));
+    }, 300);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RECORDING
+// ═══════════════════════════════════════════════════════
+let mediaRecorder = null;
+let recordedChunks = [];
+
+async function record(id, duration) {
+  const stage = document.getElementById(id);
+  const recBtn = event.target;
+  const indicator = document.getElementById('rec-' + id);
+
+  // Find target via canvas if needed
+  let stream;
+  try {
+    // Use display media for entire stage area
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { cursor: 'never', displaySurface: 'browser' },
+      audio: false
+    });
+  } catch (err) {
+    alert('⚠️ Browser meminta izin untuk merekam layar.\n\nKlik area Stage di tab ini saat dialog muncul.\n\nError: ' + err.message);
+    return;
+  }
+
+  recordedChunks = [];
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ? 'video/webm;codecs=vp9'
+    : 'video/webm';
+  mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `prodifa_${id}_${Date.now()}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    stream.getTracks().forEach(t => t.stop());
+    indicator.classList.remove('active');
+    recBtn.classList.remove('recording');
+    recBtn.textContent = '🔴 Record (' + duration + 's)';
+  };
+
+  // Show recording indicator
+  indicator.classList.add('active');
+  recBtn.classList.add('recording');
+  recBtn.textContent = '⏺ Recording...';
+
+  // Scroll to stage and play animation
+  stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => {
+    if (id === 's6') playWA();
+    else playAnim(id);
+    mediaRecorder.start();
+    setTimeout(() => {
+      if (mediaRecorder.state === 'recording') mediaRecorder.stop();
+    }, duration * 1000);
+  }, 800);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Auto-play each visible section once
+  setTimeout(() => {
+    document.querySelectorAll('.stage').forEach(s => {
+      if (s.id !== 's6') s.classList.add('playing');
+    });
+    initChartCluster();
+    initChartRevenue();
+    initChartAvg();
+    initChartFund();
+    initChartProj();
+    switchWA('loyal');
+    document.querySelectorAll('#s3 .stat-val').forEach(el => animateCount(el, 2000));
+  }, 300);
+});
+</script>
+
+</body>
+</html>
